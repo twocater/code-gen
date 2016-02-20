@@ -1,0 +1,12 @@
+
+
+insert into $table $fields values $values;
+
+update $table set $fieldvalues where id=? 
+
+delete from $table where id=?
+
+select * from $table where id=?
+
+
+

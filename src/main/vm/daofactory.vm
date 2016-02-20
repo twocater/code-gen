@@ -1,0 +1,38 @@
+package ${package}.server;
+
+import javax.sql.DataSource;
+import org.slf4j.Logger;
+import ${package}.dao.*;
+
+public class DaoFactory {
+
+	protected Logger dbLog;
+	protected DataSource dataSource;
+	
+#foreach($dao in $daoMap.entrySet())
+	private $dao.key $dao.value;
+#end
+
+	public DaoFactory(DataSource dataSource,Logger dbLog) {
+		this.dataSource = dataSource;
+		this.dbLog = dbLog;
+		init();
+	}
+	
+	private void init() {
+#foreach($dao in $daoMap.entrySet())
+		$dao.value = new ${dao.key}(dataSource, dbLog);
+#end
+	}
+	
+	public DataSource getDataSource() {
+		return this.dataSource;
+	}
+	
+#foreach($dao in $daoMap.entrySet())
+	public $dao.key get${dao.key}() {
+		return this.$dao.value;
+	}
+	 
+#end
+}

@@ -1,0 +1,189 @@
+package ${package}.servlet;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
+import com.xunlei.game.api.Result;
+import com.xunlei.game.api.ResultException;
+import com.xunlei.game.kit.entry.MapEntry;
+import com.xunlei.game.util.StringUtil;
+
+import com.xunlei.game.codegen.servlet.AbstractActionServlet;
+import com.xunlei.game.codegen.database.Config;
+import com.xunlei.game.codegen.util.StringParse;
+
+import ${package}.server.ServerBo;
+import ${package}.vo.$vo;
+
+
+public class $servlet extends AbstractActionServlet {
+
+	@Override
+	protected int total(MapEntry params) throws SQLException, ResultException {
+		// Auto generate code, add your logic and correct the mistakes 
+		//
+		return ServerBo.getInstance().getDaoFactory().get$dao().count();
+	}
+
+	@Override
+	protected String add(MapEntry params) throws SQLException, ResultException {
+		// Auto generate code, add your logic and correct the mistakes 
+		//
+#foreach($column in $columns)
+#if($column.field != "id")
+		String $column.field = params.getString("$column.field");
+		if (StringUtil.isEmpty($column.field)) {
+			throw new ResultException(Result.PARAM_ERROR);
+		}	
+#end	
+#end
+		String id = ServerBo.getInstance().createId();
+		${vo} vo = new ${vo}();
+#foreach(${column} in ${columns})
+#if($column.type == "String")
+		vo.set$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)($column.field);
+#else
+		vo.set$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)($column.field));
+#end
+#end
+		ServerBo.getInstance().getDaoFactory().get$dao().save(vo);
+		return id;
+	}
+	
+	@Override
+	protected Result deleteList(MapEntry params) throws SQLException {
+		// Auto generate code, add your logic and correct the mistakes 
+		//
+		String id = params.getString("id");
+		if (StringUtil.isEmpty(id)) {
+			return Result.PARAM_ERROR;
+		}
+		String[] ids = id.split(",");
+		ServerBo.getInstance().getDaoFactory().get$dao().deleteList(ids);
+		return Result.OK;
+	}
+	
+	@Override
+	protected Result delete(MapEntry params) throws SQLException {
+		Map<String, String> condition = new HashMap<String, String>();
+		
+#foreach($column in $columns)
+		String $column.field = params.getString("$column.field");
+		if (StringUtil.isNotEmpty($column.field)) {
+			condition.put("$column.field", $column.field);
+		}
+#end
+
+		ServerBo.getInstance().getDaoFactory().get$dao().delete(condition);
+		
+		return Result.OK;
+	}
+	
+	@Override
+	protected Result update(MapEntry params) throws SQLException {
+		// Auto generate code, add your logic and correct the mistakes
+		//
+		
+		Map<String, String> fields = new HashMap<String, String>();
+		Map<String, String> condition = new HashMap<String, String>();
+		
+#foreach($column in $columns)
+		String $column.field = params.getString("$column.field");
+		if (StringUtil.isNotEmpty($column.field)) {
+#if($column.key == "PRI" || $column.key == "UNI")
+			condition.put("$column.field", $column.field);
+#else
+			fields.put("$column.field", $column.field);
+#end
+		}
+#end	
+
+		ServerBo.getInstance().getDaoFactory().get$dao().update(fields, condition);
+		
+		return Result.OK;
+	}
+	
+	@Override
+	protected List<Object> list(MapEntry params) throws SQLException, ResultException {
+		// Auto generate code, add your logic and correct the mistakes
+		//
+		boolean isPage = Config.DEFAULT_IS_PAGE;
+		if (!params.isNull("isPage")) {
+			isPage = params.getBoolean("isPage");
+		}
+		int page = 1;
+		if (!params.isNull("page")) {
+			page = params.getInt("page");
+		}
+		int perPage = Config.DEFAULT_PER_PAGE;
+		if (!params.isNull("perPage")) {
+			perPage = params.getInt("perPage");
+		}
+		List<Object> list = new ArrayList<Object>();
+		List<$vo> findlist = ServerBo.getInstance().getDaoFactory().get$dao().queryList(isPage, page, perPage);
+		if (findlist != null) {
+			for ($vo vo : findlist) {
+				list.add(vo.toMap());
+			}
+		}
+		return list;
+	}
+	
+	@Override
+	protected Map<String, Object> view(MapEntry params) throws SQLException, ResultException {
+		Map<String, String> condition = new HashMap<String, String>();
+		
+#foreach($column in $columns)
+		String $column.field = params.getString("$column.field");
+		if (StringUtil.isNotEmpty($column.field)) {
+			condition.put("$column.field", $column.field);
+		}
+#end
+
+		$vo vo = ServerBo.getInstance().getDaoFactory().get$dao().query(condition);
+		if (vo == null) {
+			return null;
+		}
+
+		return vo.toMap();
+	}
+	
+	@Override
+	protected List<Object> viewList(MapEntry params) throws SQLException, ResultException {
+		boolean isPage = Config.DEFAULT_IS_PAGE;
+		if (!params.isNull("isPage")) {
+			isPage = params.getBoolean("isPage");
+		}
+		int page = 1;
+		if (!params.isNull("page")) {
+			page = params.getInt("page");
+		}
+		int perPage = Config.DEFAULT_PER_PAGE;
+		if (!params.isNull("perPage")) {
+			perPage = params.getInt("perPage");
+		}
+		Map<String, String> condition = new HashMap<String, String>();
+		
+#foreach($column in $columns)
+		String $column.field = params.getString("$column.field");
+		if (StringUtil.isNotEmpty($column.field)) {
+			condition.put("$column.field", $column.field);
+		}
+#end
+
+		List<$vo> findlist = ServerBo.getInstance().getDaoFactory().get$dao().queryList(condition, isPage, page, perPage);
+		List<Object> list = null;
+		if (findlist != null) {
+			list = new ArrayList<Object>();
+			for ($vo vo : findlist) {
+				list.add(vo.toMap());
+			}
+		}
+		return list;
+	}
+}
+
+	

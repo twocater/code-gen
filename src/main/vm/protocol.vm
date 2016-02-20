@@ -1,0 +1,23 @@
+package ${package}.vo;
+
+option java_package = "${package}.vo";
+option java_outer_classname = "${message}";
+
+message ${message}VO{
+#foreach($column in ${columns})  
+#if($column.isNull == "NO")
+#set($flag = "required")
+#else
+#set($flag = "optional")
+#end
+#if(!($column.defaultValue) || $column.defaultValue == "0")
+	$flag ${column.type} ${column.field} = $velocityCount;
+#else
+#if(${column.type} == "string")
+	$flag ${column.type} ${column.field} = $velocityCount [default = "$column.defaultValue"];
+#else
+	$flag ${column.type} ${column.field} = $velocityCount [default = $column.defaultValue];
+#end  
+#end 
+#end 
+}

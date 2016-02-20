@@ -1,0 +1,40 @@
+package ${package}.vo;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class $vo {
+#foreach($column in ${columns})
+	private $column.type $column.field;
+#end
+#foreach($column in ${columns})
+	
+#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
+	public $column.type get$columnfield() {
+		return this.$column.field;
+	}
+	
+	public void set$columnfield($column.type $column.field) {
+		this.$column.field = $column.field;
+	}	
+#end
+
+	public Map<String, Object> toMap() {
+		Map<String, Object> map = new HashMap<String, Object>();
+#foreach($column in ${columns})
+		map.put("$column.field", $column.field);
+#end
+		return map;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+#foreach($column in ${columns})
+		sb.append("$column.field=").append($column.field).append(",");
+#end
+		
+		return sb.toString();
+	}
+
+}

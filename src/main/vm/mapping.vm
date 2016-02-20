@@ -1,0 +1,36 @@
+package ${package}.server;
+
+import com.xunlei.game.kit.entry.MapEntry;
+#foreach($mapping in $mappingMap.entrySet())
+import ${package}.vo.${mapping.key};
+import ${package}.vo.${mapping.key}.${mapping.key}VO;
+#end
+public class MappingServer {
+#foreach($mapping in $mappingMap.entrySet())	
+	public ${mapping.key}VO mapping${mapping.key}(MapEntry param) throws UninitializedMessageException{{
+		${mapping.key}.${mapping.key}VO.Builder builder = ${mapping.key}.${mapping.key}VO.newBuilder();
+#set( $columns = ${mapping.value} )
+#foreach($column in ${columns})  	
+#set( $tmp = ${column.field} )
+#set( $first = $tmp.substring(0, 1).toUpperCase())
+#set( $other = $tmp.substring(1))	
+#set( $setter = "set$first$other")	
+#set( $tmp = ${column.type} )
+#set( $first = $tmp.substring(0, 1).toUpperCase())
+#set( $other = $tmp.substring(1))	
+#set( $type = "$first$other")	
+		${column.type} ${column.field} = param.get$type("${column.field}");
+		if(param.get$type("${column.field}") != null){
+			builder.$setter(${column.field});
+		}
+#end		
+		${mapping.key}VO vo = null;
+		try{
+			vo = builder.build();
+		}catch(UninitializedMessageException e){
+			throw e;
+		}
+		return vo;
+	} 
+#end
+}
