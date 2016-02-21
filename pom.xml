@@ -49,6 +49,30 @@
                 <version>2.6</version>
                 <executions>
                     <execution>
+                        <id>dao</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>dao</classifier>
+                            <includes>
+                                <include>**/codegen/dao/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>velocity</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>velocity</classifier>
+                            <includes>
+                                <include>**/velocity/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <goals>
                             <goal>test-jar</goal>
                         </goals>

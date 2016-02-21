@@ -14,7 +14,7 @@
 	<target name="compile" depends="init" description="compile the source ">
 		<copy todir="${dist.lib.dao}">
 			<fileset dir="lib">
-				<include name="codegen-dao.jar" />
+				<include name="code-gen-*-dao.jar" />
 				<include name="slf4j-api-1.6.1.jar" />
 			</fileset>
 		</copy>
