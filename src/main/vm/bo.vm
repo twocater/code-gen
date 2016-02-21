@@ -2,11 +2,8 @@ package ${package}.server;
 
 import java.sql.SQLException;
 
-import com.xunlei.game.api.Result;
-import com.xunlei.game.api.ResultException;
-import com.xunlei.game.module.util.C3P0DataSourceUtil;
-
-import com.xunlei.game.kit.id.UuidGen;
+import com.xunlei.game.codegen.dao.util.C3P0DataSourceUtil;
+import com.xunlei.game.codegen.dao.util.UuidGen;
 
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +14,7 @@ import ${package}.vo.${mapping.key}Vo;
 public class ServerBo {
 	private static ServerBo instance = new ServerBo();
 	private DaoFactory daoFactory;
-	
+
 	private UuidGen uuidGen = new UuidGen();
 
 	private ServerBo() {
@@ -27,11 +24,11 @@ public class ServerBo {
 	public static ServerBo getInstance() {
 		return instance;
 	}
-	
+
 	public String createId() {
 		return uuidGen.createId();
 	}
-	
+
 	public DaoFactory getDaoFactory() {
 		return daoFactory;
 	}
@@ -41,32 +38,38 @@ public class ServerBo {
 #set($first = "$key.substring(0,1).toLowerCase()")
 #set($other = "$key.substring(1)")
 #set($object = "$first$other")
+#set($idType = "String")
+    #foreach($column in $mapping.value)
+        #if($column.type == "long")
+            #set($idType = "long")
+        #end
+    #end
 
-	public String add${mapping.key}(${mapping.key}Vo ${object}Vo) throws ResultException, SQLException{
-		String id = ${object}Vo.getId();
+	public ${idType} add${mapping.key}(${mapping.key}Vo ${object}Vo) throws SQLException{
+        ${idType} id = ${object}Vo.getId();
 		daoFactory.get${mapping.key}Dao().save(${object}Vo);
 		return id;
 	}
-	
-	public Result delete${mapping.key}(String id) throws SQLException {
+
+	public int delete${mapping.key}(${idType} id) throws SQLException {
 		daoFactory.get${mapping.key}Dao().delete(id);
-		return Result.OK;
+		return 1;
 	}
-	
-	public Result delete${mapping.key}(String[] ids) throws SQLException {
+
+	public int delete${mapping.key}(${idType}[] ids) throws SQLException {
 		daoFactory.get${mapping.key}Dao().deleteList(ids);
-		return Result.OK;
+		return 1;
 	}
-	
-	public int total${mapping.key}() throws ResultException, SQLException {
+
+	public int total${mapping.key}() throws SQLException {
 		int total = daoFactory.get${mapping.key}Dao().count();
 		return total;
 	}
-	
-	public ${mapping.key}Vo view${mapping.key}(String id) throws ResultException, SQLException {
+
+	public ${mapping.key}Vo view${mapping.key}(${idType} id) throws SQLException {
 		${mapping.key}Vo vo = daoFactory.get${mapping.key}Dao().query(id);
 		return vo;
-	} 
-#end	
+	}
+#end
 
 }

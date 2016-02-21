@@ -3,7 +3,6 @@ package ${package}.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -12,9 +11,8 @@ import java.sql.ResultSet;
 
 import org.slf4j.Logger;
 
-import com.xunlei.game.codegen.database.datatype.DefaultValue;
-import com.xunlei.game.codegen.database.BaseDao;
-import com.xunlei.game.codegen.util.StringParse;
+import com.xunlei.game.codegen.dao.BaseDao;
+import com.xunlei.game.codegen.dao.util.StringParse;
 
 import ${package}.vo.${entry}Vo;
 
@@ -23,7 +21,7 @@ public class $dao extends BaseDao<${vo}> {
 #set($values = "")
 #set($params = "")
 #set($seperator = "")
-#foreach($column in ${columns})  
+#foreach($column in ${columns})
 #set($tmpFields = "${fields}$seperator$column.field" )
 #set($fields = $tmpFields )
 #set($tmpValues = "$values${seperator}?" )
@@ -31,11 +29,17 @@ public class $dao extends BaseDao<${vo}> {
 #set($tmpParams = "$params$seperator${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()" )
 #set($params = $tmpParams)
 #set($seperator = ",")
-#end 
- 	
+#end
+#set($idType = "String")
+#foreach($column in ${columns})
+    #if($column.type == "long")
+        #set($idType = "long")
+    #end
+#end
+
  	public static final String TABLE = "$table";
 	public static final String FIELD = "$fields";
-	public static final String insertSql = "insert into " + TABLE + " (" + FIELD + ") values ($values)";	
+	public static final String insertSql = "insert into " + TABLE + " (" + FIELD + ") values ($values)";
 	public static final String querySqlWithId = "select " + FIELD + " from " + TABLE + " where id=?";
 	public static final String querySql = "select " + FIELD + " from " + TABLE;
 	public static final String deleteSqlWithId = "delete from " + TABLE + " where id=?";
@@ -49,32 +53,32 @@ public class $dao extends BaseDao<${vo}> {
 	public static final String SET = " set ";
 	public static final String EMPTY_STRING = "";
 	public static final String COMMA = ",";
-	
+
 	public ${dao}(DataSource dataSource,Logger log){
  		super(dataSource, log);
  	}
-	
+
 	public int save($vo $object) throws SQLException {
 		return save(insertSql, $object);
 	}
-	
+
 	public int[] saveList(List<$vo> ${object}List) throws SQLException{
 		return saveList(insertSql, ${object}List);
 	}
 
-	public int delete(String id) throws SQLException {
-		return update(deleteSqlWithId, new String[] { id });
+	public int delete(${idType} id) throws SQLException {
+		return update(deleteSqlWithId, new ${idType}[] { id });
 	}
-	
-	public int[] deleteList(String[] ids) throws SQLException {
+
+	public int[] deleteList(${idType}[] ids) throws SQLException {
 		return batchUpdate(deleteSqlWithId, ids);
 	}
-	
+
 	public int delete(Map<String, String> condition) throws SQLException {
 		StringBuilder sql = new StringBuilder(deleteSql);
 		List<String> paramList = new ArrayList<String>();
 		String split = WHERE;
-		
+
 #foreach($column in ${columns})
 		if (condition.get("$column.field") != null) {
 #if($column.type == "String")
@@ -91,11 +95,11 @@ public class $dao extends BaseDao<${vo}> {
 
 		return update(sql.toString(), paramList.toArray(new String[0]));
 	}
-	
+
 	public int update(Map<String, String> fields, Map<String, String> condition) throws SQLException {
 		return update(TABLE, fields, condition);
 	}
-	
+
 	public int update(String table, Map<String, String> fields, Map<String, String> condition) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		if (table == null) {
@@ -139,17 +143,17 @@ public class $dao extends BaseDao<${vo}> {
 #end
 
 		return update(sql.toString(), paramList.toArray(new String[0]));
-	}	
-	
+	}
+
 	public int[] updateList(String sql, List<$vo> list) throws SQLException {
-		String[] ids = new String[list.size()];
+        ${idType}[] ids = new ${idType}[list.size()];
 		for (int i = 0; i < ids.length; i++) {
 			ids[i] = list.get(i).getId();
 		}
 
 		return batchUpdate(sql, ids);
 	}
-	
+
 	public int update$vo(String table, $vo $object) throws SQLException{
 		StringBuilder sql = new StringBuilder();
 		if (table == null) {
@@ -158,9 +162,9 @@ public class $dao extends BaseDao<${vo}> {
 		sql.append(" update ").append(table).append(" set ") ;
 		List<Object> paramList = new ArrayList<Object>();
 		String seperator = "";
-#foreach($column in ${columns})   
+#foreach($column in ${columns})
 #set($getter = "${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()")
-#if ($column.type == "String") 
+#if ($column.type == "String")
 #if($column.field != "id")
 
 		sql.append(seperator);
@@ -168,29 +172,29 @@ public class $dao extends BaseDao<${vo}> {
 		paramList.add($getter);
 		seperator = ",";
 #end
-#else 
+#else
 
 		sql.append(seperator);
 		sql.append("$column.field=?");
 		paramList.add($getter);
-		seperator = ",";			
+		seperator = ",";
 #end
-#end 
+#end
 
 		sql.append(" where id=?");
 		paramList.add(${object}.getId());
 		return update(sql.toString(),paramList.toArray());
 	}
-	
-	public $vo query(String id) throws SQLException {
-		return query(querySqlWithId, new String[] { id });
+
+	public $vo query(${idType} id) throws SQLException {
+		return query(querySqlWithId, new ${idType}[] { id });
 	}
-	
+
 	public $vo query(Map<String, String> condition) throws SQLException {
 		StringBuilder sql = new StringBuilder(querySql);
 		List<String> paramList = new ArrayList<String>();
 		String split = WHERE;
-		
+
 #foreach($column in ${columns})
 		if (condition.get("$column.field") != null) {
 #if($column.type == "String")
@@ -212,7 +216,7 @@ public class $dao extends BaseDao<${vo}> {
 		StringBuilder sql = new StringBuilder(querySql);
 		List<String> paramList = new ArrayList<String>();
 		String split = WHERE;
-		
+
 #foreach($column in ${columns})
 		if (condition.get("$column.field") != null) {
 #if($column.type == "String")
@@ -226,7 +230,7 @@ public class $dao extends BaseDao<${vo}> {
 			split = AND;
 		}
 #end
-			
+
 		if (isPage) {
 			int start = (page - 1) * perPage;
 			sql.append(LIMIT).append(start).append(",").append(perPage);
@@ -237,18 +241,18 @@ public class $dao extends BaseDao<${vo}> {
 
 	public List<$vo> queryList(boolean isPage, int page, int perPage) throws SQLException {
 		StringBuilder sb = new StringBuilder(querySql);
-		
+
 		if (isPage) {
 			int start = (page - 1) * perPage;
 			sb.append(LIMIT).append(start).append(",").append(perPage);
 		}
 		return queryList(sb.toString(), null);
 	}
-	
+
 	public int count() throws SQLException {
 		return queryForInt(countSql);
 	}
-	
+
 	@Override
 	protected void setRow(PreparedStatement ps, ${vo} object) throws SQLException {
 #set($i = 1)
@@ -258,7 +262,7 @@ public class $dao extends BaseDao<${vo}> {
 #set($i=$i+1)
 #end
 	}
-	
+
 	@Override
 	protected ${vo} mapRow(ResultSet rs) throws SQLException {
 		${vo} ${object} = new ${vo}();
