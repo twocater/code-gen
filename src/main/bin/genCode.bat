@@ -4,7 +4,7 @@ java -cp %classpath% com.xunlei.game.velocity.GetAllTableMain
 ::设置源代码目录，存放生成的源码
 set src=src
 ::设置项目名称，打包生成的源码时，会用到
-set projectName=project
+set projectName=dayouaccount
 
 rd /s /q %src%
 
