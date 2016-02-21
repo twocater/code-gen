@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
-import com.xunlei.game.codegen.database.datatype.DataType;
+import com.xunlei.game.codegen.dao.datatype.DataType;
 import com.xunlei.game.velocity.dao.DescribeDao;
 import com.xunlei.game.velocity.datatype.MysqlToPb;
 import com.xunlei.game.velocity.server.VelocityServer;

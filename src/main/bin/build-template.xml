@@ -1,0 +1,42 @@
+<project name="codeGen" default="dist" basedir=".">
+
+	<property name="projectName" value="${projectName}" />
+	<property name="src" location="${src}" />
+	<property name="dist" location="dist" />
+	<property name="dist.lib.dao" location="dist/lib-dao" />
+
+	<target name="init">
+		<delete dir="${dist}" />
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist}/classes" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<copy todir="${dist.lib.dao}">
+			<fileset dir="lib">
+				<include name="codegen-dao.jar" />
+				<include name="slf4j-api-1.6.1.jar" />
+			</fileset>
+		</copy>
+
+		<javac srcdir="${src}" destdir="${dist}/classes" debug="true" encoding="utf-8" includeantruntime="on">
+			<compilerarg value="-Xlint:unchecked" />
+			<compilerarg value="-Xlint:deprecation" />
+			<classpath>
+				<fileset dir="${dist}/lib-dao">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<jar destfile="${dist.lib.dao}/codegen-dao-${projectName}.jar">
+			<fileset dir="${dist}/classes">
+				<include name="**/*.class" />
+			</fileset>
+		</jar>
+		<delete dir="${dist}/classes" />
+	</target>
+
+</project>

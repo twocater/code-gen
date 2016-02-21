@@ -11,6 +11,12 @@ import java.util.List;
 import java.util.Properties;
 import com.xunlei.game.velocity.dao.DescribeDao;
 
+/**
+ * get tables from database
+ * 
+ * @author chenzhiwei
+ * @since 2015-1-27
+ */
 public class GetAllTableMain {
 	public static final String CONFIG_FILE = "config.properties";
 

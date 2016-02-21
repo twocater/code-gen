@@ -2,7 +2,7 @@ package com.xunlei.game.velocity.datatype;
 
 import java.util.Properties;
 
-import com.xunlei.game.codegen.database.datatype.DataType;
+import com.xunlei.game.codegen.dao.datatype.DataType;
 import com.xunlei.game.velocity.util.PropertyUtil;
 
 public class MysqlToPb implements DataType {

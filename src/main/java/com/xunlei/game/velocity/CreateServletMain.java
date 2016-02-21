@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.xunlei.game.codegen.database.datatype.DataType;
+import com.xunlei.game.codegen.dao.datatype.DataType;
 import com.xunlei.game.velocity.dao.DescribeDao;
 import com.xunlei.game.velocity.datatype.MysqlToJava;
 import com.xunlei.game.velocity.server.VelocityServer;

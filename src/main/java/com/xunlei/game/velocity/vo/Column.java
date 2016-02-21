@@ -1,6 +1,6 @@
 package com.xunlei.game.velocity.vo;
 
-import com.xunlei.game.codegen.database.datatype.DataType;
+import com.xunlei.game.codegen.dao.datatype.DataType;
 
 public class Column {
 

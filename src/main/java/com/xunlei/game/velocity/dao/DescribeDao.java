@@ -13,7 +13,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.xunlei.game.codegen.database.datatype.DataType;
+import com.xunlei.game.codegen.dao.datatype.DataType;
 import com.xunlei.game.velocity.util.PropertyUtil;
 import com.xunlei.game.velocity.vo.Column;
 
