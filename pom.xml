@@ -15,6 +15,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.libbasedir>${basedir}/lib</project.libbasedir>
+
+        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
+        <github.global.server>github</github.global.server>
     </properties>
 
     <build>
@@ -102,6 +105,32 @@
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>0.12</version>
+                <configuration>
+                    <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
+                    <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+                    <outputDirectory>${project.build.directory}/mvn-repository</outputDirectory> <!-- matches distribution management repository url above -->
+                    <branch>refs/heads/master</branch>                       <!-- remote branch name -->
+                    <includes>
+                        <include>**/*</include>
+                    </includes>
+                    <repositoryName>maven-repository</repositoryName>      <!-- github repo name -->
+                    <repositoryOwner>twocater</repositoryOwner>    <!-- github username  -->
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -144,6 +173,14 @@
             <!--<scope>system</scope>-->
         <!--</dependency>-->
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repository</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repository/mvn-repository</url>
+        </repository>
+    </distributionManagement>
 
 
 </project>
