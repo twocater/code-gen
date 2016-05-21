@@ -19,7 +19,7 @@ import com.xunlei.game.velocity.util.PropertyUtil;
 import com.xunlei.game.velocity.vo.Column;
 
 public class CreateBoMain {
-	private static final String vm = "bo.vm";
+	private static final String vm = "vm/bo.vm";
 	public static final String separator = File.separator;
 	public static String codedir;
 	public static Properties properties = PropertyUtil.getPropertiesFromResource("config.properties");

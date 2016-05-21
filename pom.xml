@@ -52,6 +52,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.6</version>
+                <configuration>
+                    <!--<includes>-->
+                        <!--<include>**/*.class</include>-->
+                        <!--<include>vm/*</include>-->
+                    <!--</includes>-->
+                    <excludes>
+                        <exclude>db.properties</exclude>
+                        <exclude>logback_.xml</exclude>
+                        <exclude>config.properties</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>dao</id>
@@ -110,9 +121,11 @@
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>2.8.1</version>
-                <configuration>
-                    <altDeploymentRepository>internal.repository::default::file://${project.build.directory}/mvn-repository</altDeploymentRepository>
-                </configuration>
+                <!--<configuration>-->
+                <!--<altDeploymentRepository>-->
+                <!--internal.repository::default::file://${project.build.directory}/mvn-repository-->
+                <!--</altDeploymentRepository>-->
+                <!--</configuration>-->
             </plugin>
 
             <plugin>
@@ -123,11 +136,12 @@
                     <merge>true</merge>
                     <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
                     <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
-                    <outputDirectory>${project.build.directory}/mvn-repository</outputDirectory> <!-- matches distribution management repository url above -->
+                    <outputDirectory>${project.build.directory}/mvn-repository
+                    </outputDirectory> <!-- matches distribution management repository url above -->
                     <branch>refs/heads/master</branch>                       <!-- remote branch name -->
-                    <includes>
-                        <include>**/*</include>
-                    </includes>
+                    <!--<includes>-->
+                    <!--<include>**/*</include>-->
+                    <!--</includes>-->
                     <repositoryName>maven-repository</repositoryName>      <!-- github repo name -->
                     <repositoryOwner>twocater</repositoryOwner>    <!-- github username  -->
                 </configuration>
@@ -176,12 +190,18 @@
             <version>0.9.1.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-exec</artifactId>
+            <version>1.3</version>
+        </dependency>
+
         <!--<dependency>-->
-            <!--<groupId>com.xunlei.game</groupId>-->
-            <!--<artifactId>code-gen-dao</artifactId>-->
-            <!--<version>1.0.0</version>-->
-            <!--<systemPath>${project.libbasedir}/code-gen-1.0.0-dao.jar</systemPath>-->
-            <!--<scope>system</scope>-->
+        <!--<groupId>com.xunlei.game</groupId>-->
+        <!--<artifactId>code-gen-dao</artifactId>-->
+        <!--<version>1.0.0</version>-->
+        <!--<systemPath>${project.libbasedir}/code-gen-1.0.0-dao.jar</systemPath>-->
+        <!--<scope>system</scope>-->
         <!--</dependency>-->
     </dependencies>
 

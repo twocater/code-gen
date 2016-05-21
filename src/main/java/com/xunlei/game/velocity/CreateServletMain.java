@@ -18,7 +18,7 @@ import com.xunlei.game.velocity.util.PropertyUtil;
 import com.xunlei.game.velocity.vo.Column;
 
 public class CreateServletMain {
-	private static final String vm = "servlet.vm";
+	private static final String vm = "vm/servlet.vm";
 	public static final String separator = File.separator;
 	public static String codedir;
 	public static Properties properties = PropertyUtil.getPropertiesFromResource("config.properties");

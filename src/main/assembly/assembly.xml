@@ -71,9 +71,10 @@
             <outputDirectory>lib</outputDirectory>
             <filtered>true</filtered>
             <includes>
+                <include>${artifactId}-${version}.jar</include>
                 <!--<include>${artifactId}-${version}-tests.*</include>-->
-                <include>${artifactId}-${version}-dao.*</include>
-                <include>${artifactId}-${version}-velocity.*</include>
+                <!--<include>${artifactId}-${version}-dao.*</include>-->
+                <!--<include>${artifactId}-${version}-velocity.*</include>-->
             </includes>
         </fileSet>
     </fileSets>

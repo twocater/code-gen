@@ -12,7 +12,7 @@ import com.xunlei.game.velocity.util.ObjectUtil;
 import com.xunlei.game.velocity.util.PropertyUtil;
 
 public class CreateDaoFactoryMain {
-	private static final String vm = "daofactory.vm";
+	private static final String vm = "vm/daofactory.vm";
 	public static final String separator = File.separator;
 	public static String codedir;
 	public static Properties properties = PropertyUtil.getPropertiesFromResource("config.properties");

@@ -1,4 +1,4 @@
-<project name="codeGen" default="dist" basedir=".">
+<project name="codeGen" default="dist" basedir="../bin">
 
 	<property name="projectName" value="${projectName}" />
 	<property name="src" location="${src}" />
@@ -14,7 +14,7 @@
 	<target name="compile" depends="init" description="compile the source ">
 		<copy todir="${dist.lib.dao}">
 			<fileset dir="lib">
-				<include name="code-gen-*-dao.jar" />
+				<include name="code-gen-*.jar" />
 				<include name="slf4j-api-*.jar" />
 			</fileset>
 		</copy>

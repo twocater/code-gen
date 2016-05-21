@@ -19,7 +19,7 @@ import com.xunlei.game.velocity.util.PropertyUtil;
 import com.xunlei.game.velocity.vo.Column;
 
 public class CreateVoMain {
-	private static final String vm = "vo.vm";
+	private static final String vm = "vm/vo.vm";
 
 	public static final String separator = File.separator;
 	public static String codedir;
