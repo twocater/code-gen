@@ -8,10 +8,10 @@
     </formats>
     <dependencySets>
         <!--<dependencySet>-->
-            <!--<outputDirectory>lib</outputDirectory>-->
-            <!--<scope>provided</scope>-->
-            <!--<outputFileNameMapping>${artifact.artifactId}-${artifact.version}-${timestamp}.${artifact.extension}-->
-            <!--</outputFileNameMapping>-->
+        <!--<outputDirectory>lib</outputDirectory>-->
+        <!--<scope>provided</scope>-->
+        <!--<outputFileNameMapping>${artifact.artifactId}-${artifact.version}-${timestamp}.${artifact.extension}-->
+        <!--</outputFileNameMapping>-->
         <!--</dependencySet>-->
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
@@ -29,6 +29,10 @@
         <fileSet>
             <directory>src/main/resources</directory>
             <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>config.properties</include>
+                <include>db.properties</include>
+            </includes>
             <filtered>true</filtered>
         </fileSet>
 
@@ -51,30 +55,30 @@
             <filtered>true</filtered>
         </fileSet>
 
-        <fileSet>
-            <directory>src/main/vm</directory>
-            <outputDirectory>vm</outputDirectory>
-            <filtered>false</filtered>
-        </fileSet>
+        <!--<fileSet>-->
+        <!--<directory>src/main/vm</directory>-->
+        <!--<outputDirectory>vm</outputDirectory>-->
+        <!--<filtered>false</filtered>-->
+        <!--</fileSet>-->
 
-        <fileSet>
-            <directory>src/main/java</directory>
-            <includes>
-                <include>com/xunlei/game/codegen/**/*</include>
-            </includes>
-            <outputDirectory>codeGenSrc</outputDirectory>
-            <filtered>false</filtered>
-        </fileSet>
+        <!--<fileSet>-->
+        <!--<directory>src/main/java</directory>-->
+        <!--<includes>-->
+        <!--<include>com/xunlei/game/codegen/**/*</include>-->
+        <!--</includes>-->
+        <!--<outputDirectory>codeGenSrc</outputDirectory>-->
+        <!--<filtered>false</filtered>-->
+        <!--</fileSet>-->
 
         <fileSet>
             <directory>target</directory>
             <outputDirectory>lib</outputDirectory>
             <filtered>true</filtered>
             <includes>
-                <include>${artifactId}-${version}.jar</include>
+                <!--<include>${artifactId}-${version}.jar</include>-->
                 <!--<include>${artifactId}-${version}-tests.*</include>-->
-                <!--<include>${artifactId}-${version}-dao.*</include>-->
-                <!--<include>${artifactId}-${version}-velocity.*</include>-->
+                <include>${artifactId}-${version}-dao.*</include>
+                <include>${artifactId}-${version}-velocity.*</include>
             </includes>
         </fileSet>
     </fileSets>

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.twocater</groupId>
-    <artifactId>code-gen</artifactId>
+    <artifactId>codegen</artifactId>
     <version>1.0.0</version>
 
     <properties>
@@ -85,6 +85,10 @@
                             <classifier>velocity</classifier>
                             <includes>
                                 <include>**/velocity/**</include>
+                                <include>vm/*</include>
+                                <include>mysql2java.properties</include>
+                                <include>mysql2pb.properties</include>
+                                <include>pb2java.properties</include>
                             </includes>
                         </configuration>
                     </execution>
