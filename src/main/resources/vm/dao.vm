@@ -62,6 +62,7 @@ public class $dao extends BaseDao<${vo}> {
 #end
 	public static final String querySqlBy${entry.key} = "select " + FIELD + " from " + TABLE + " where ${paramList}";
 	public static final String deleteSqlBy${entry.key} = "delete from " + TABLE + " where ${paramList}";
+	public static final String updateSqlBy${entry.key} = "update " + TABLE + " set " + " where ${paramList}";
 #end
 
 	public ${dao}(DataSource dataSource,Logger log){
@@ -76,9 +77,9 @@ public class $dao extends BaseDao<${vo}> {
 		return saveList(insertSql, ${object}List);
 	}
 
-	public int delete(${idType} id) throws SQLException {
-		return update(deleteSqlWithId, new ${idType}[] { id });
-	}
+##	public int delete(${idType} id) throws SQLException {
+##		return update(deleteSqlWithId, new ${idType}[] { id });
+##	}
 
 #foreach($entry in $uniqueIndexList.entrySet())
 #set($paramList = "")
@@ -95,89 +96,89 @@ public class $dao extends BaseDao<${vo}> {
 
 #end
 
-	public int[] deleteList(${idType}[] ids) throws SQLException {
-		return batchUpdate(deleteSqlWithId, ids);
-	}
+##	public int[] deleteList(${idType}[] ids) throws SQLException {
+##		return batchUpdate(deleteSqlWithId, ids);
+##	}
 
-	public int delete(Map<String, String> condition) throws SQLException {
-		StringBuilder sql = new StringBuilder(deleteSql);
-		List<String> paramList = new ArrayList<String>();
-		String split = WHERE;
+##	public int delete(Map<String, String> condition) throws SQLException {
+##		StringBuilder sql = new StringBuilder(deleteSql);
+##		List<String> paramList = new ArrayList<String>();
+##		String split = WHERE;
+##
+###foreach($column in ${columns})
+##		if (condition.get("$column.field") != null) {
+###if($column.type == "String")
+##			sql.append(split);
+##			sql.append("$column.field=?");
+##			paramList.add(condition.get("$column.field"));
+###else
+##			sql.append(split);
+##			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
+###end
+##			split = AND;
+##		}
+###end
+##
+##		return update(sql.toString(), paramList.toArray(new String[0]));
+##	}
 
-#foreach($column in ${columns})
-		if (condition.get("$column.field") != null) {
-#if($column.type == "String")
-			sql.append(split);
-			sql.append("$column.field=?");
-			paramList.add(condition.get("$column.field"));
-#else
-			sql.append(split);
-			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
-#end
-			split = AND;
-		}
-#end
+##	public int update(Map<String, String> fields, Map<String, String> condition) throws SQLException {
+##		return update(TABLE, fields, condition);
+##	}
+##
+##	public int update(String table, Map<String, String> fields, Map<String, String> condition) throws SQLException {
+##		StringBuilder sql = new StringBuilder();
+##		if (table == null) {
+##			table = TABLE;
+##		}
+##		sql.append(UPDATE).append(table).append(SET);
+##		List<String> paramList = new ArrayList<String>();
+##		String seperator = EMPTY_STRING;
+##
+###foreach($column in ${columns})
+##		if (fields.get("$column.field") != null) {
+###if($column.type == "String")
+##			sql.append(seperator);
+##			sql.append("$column.field=?");
+##			paramList.add(fields.get("$column.field"));
+###else
+##			sql.append(seperator);
+##			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(fields.get("$column.field")));
+###end
+##			seperator = COMMA;
+##		}
+###end
+##
+##		String split = WHERE;
+###set($i = 0)
+###foreach($column in ${columns})
+##		if (condition.get("$column.field") != null) {
+###if($column.type == "String")
+##			sql.append(split);
+##			sql.append("$column.field").append("=?");
+##			paramList.add(condition.get("$column.field"));
+###else
+##			sql.append(split);
+##			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
+###end
+##		}
+###set($i = $i + 1)
+###if($i == 1)
+##		split = AND;
+###end
+###end
+##
+##		return update(sql.toString(), paramList.toArray(new String[0]));
+##	}
 
-		return update(sql.toString(), paramList.toArray(new String[0]));
-	}
-
-	public int update(Map<String, String> fields, Map<String, String> condition) throws SQLException {
-		return update(TABLE, fields, condition);
-	}
-
-	public int update(String table, Map<String, String> fields, Map<String, String> condition) throws SQLException {
-		StringBuilder sql = new StringBuilder();
-		if (table == null) {
-			table = TABLE;
-		}
-		sql.append(UPDATE).append(table).append(SET);
-		List<String> paramList = new ArrayList<String>();
-		String seperator = EMPTY_STRING;
-
-#foreach($column in ${columns})
-		if (fields.get("$column.field") != null) {
-#if($column.type == "String")
-			sql.append(seperator);
-			sql.append("$column.field=?");
-			paramList.add(fields.get("$column.field"));
-#else
-			sql.append(seperator);
-			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(fields.get("$column.field")));
-#end
-			seperator = COMMA;
-		}
-#end
-
-		String split = WHERE;
-#set($i = 0)
-#foreach($column in ${columns})
-		if (condition.get("$column.field") != null) {
-#if($column.type == "String")
-			sql.append(split);
-			sql.append("$column.field").append("=?");
-			paramList.add(condition.get("$column.field"));
-#else
-			sql.append(split);
-			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
-#end
-		}
-#set($i = $i + 1)
-#if($i == 1)
-		split = AND;
-#end
-#end
-
-		return update(sql.toString(), paramList.toArray(new String[0]));
-	}
-
-	public int[] updateList(String sql, List<$vo> list) throws SQLException {
-        ${idType}[] ids = new ${idType}[list.size()];
-		for (int i = 0; i < ids.length; i++) {
-			ids[i] = list.get(i).getId();
-		}
-
-		return batchUpdate(sql, ids);
-	}
+##	public int[] updateList(String sql, List<$vo> list) throws SQLException {
+##        ${idType}[] ids = new ${idType}[list.size()];
+##		for (int i = 0; i < ids.length; i++) {
+##			ids[i] = list.get(i).getId();
+##		}
+##
+##		return batchUpdate(sql, ids);
+##	}
 
 	public int update$vo(String table, $vo $object) throws SQLException{
 		StringBuilder sql = new StringBuilder();
@@ -224,70 +225,86 @@ public class $dao extends BaseDao<${vo}> {
 #set($params = "$params$sep$p")
 #set($sep = ",")
 #end
+        public int update$vo($vo $object) throws SQLException{
+
+        	return update(deleteSqlBy${entry.key}, new Object[]{$params});
+        }
+
+#end
+
+#foreach($entry in $uniqueIndexList.entrySet())
+#set($paramList = "")
+#set($params = "")
+#set($sep = "")
+#foreach($p in ${entry.value})
+#set($paramList = "$paramList$sep$columnType.get($p) $p")
+#set($params = "$params$sep$p")
+#set($sep = ",")
+#end
 	public $vo queryBy${entry.key}($paramList) throws SQLException {
 		return query(querySqlBy${entry.key}, new Object[]{$params});
 	}
 
 #end
 
-	public $vo query(Map<String, String> condition) throws SQLException {
-		StringBuilder sql = new StringBuilder(querySql);
-		List<String> paramList = new ArrayList<String>();
-		String split = WHERE;
+##	public $vo query(Map<String, String> condition) throws SQLException {
+##		StringBuilder sql = new StringBuilder(querySql);
+##		List<String> paramList = new ArrayList<String>();
+##		String split = WHERE;
+##
+###foreach($column in ${columns})
+##		if (condition.get("$column.field") != null) {
+###if($column.type == "String")
+##			sql.append(split);
+##			sql.append("$column.field=?");
+##			paramList.add(condition.get("$column.field"));
+###else
+##			sql.append(split);
+##			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
+###end
+##			split = AND;
+##		}
+###end
+##
+##		return query(sql.toString(), paramList.toArray(new String[0]));
+##	}
 
-#foreach($column in ${columns})
-		if (condition.get("$column.field") != null) {
-#if($column.type == "String")
-			sql.append(split);
-			sql.append("$column.field=?");
-			paramList.add(condition.get("$column.field"));
-#else
-			sql.append(split);
-			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
-#end
-			split = AND;
-		}
-#end
-
-		return query(sql.toString(), paramList.toArray(new String[0]));
-	}
-
-	public List<$vo> queryList(Map<String, String> condition, boolean isPage, int page, int perPage) throws SQLException {
-		StringBuilder sql = new StringBuilder(querySql);
-		List<String> paramList = new ArrayList<String>();
-		String split = WHERE;
-
-#foreach($column in ${columns})
-		if (condition.get("$column.field") != null) {
-#if($column.type == "String")
-			sql.append(split);
-			sql.append("$column.field=?");
-			paramList.add(condition.get("$column.field"));
-#else
-			sql.append(split);
-			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
-#end
-			split = AND;
-		}
-#end
-
-		if (isPage) {
-			int start = (page - 1) * perPage;
-			sql.append(LIMIT).append(start).append(",").append(perPage);
-		}
-
-		return queryList(sql.toString(), paramList.toArray(new String[0]));
-	}
-
-	public List<$vo> queryList(boolean isPage, int page, int perPage) throws SQLException {
-		StringBuilder sb = new StringBuilder(querySql);
-
-		if (isPage) {
-			int start = (page - 1) * perPage;
-			sb.append(LIMIT).append(start).append(",").append(perPage);
-		}
-		return queryList(sb.toString(), null);
-	}
+##	public List<$vo> queryList(Map<String, String> condition, boolean isPage, int page, int perPage) throws SQLException {
+##		StringBuilder sql = new StringBuilder(querySql);
+##		List<String> paramList = new ArrayList<String>();
+##		String split = WHERE;
+##
+###foreach($column in ${columns})
+##		if (condition.get("$column.field") != null) {
+###if($column.type == "String")
+##			sql.append(split);
+##			sql.append("$column.field=?");
+##			paramList.add(condition.get("$column.field"));
+###else
+##			sql.append(split);
+##			sql.append("$column.field=").append(StringParse.parse$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)(condition.get("$column.field")));
+###end
+##			split = AND;
+##		}
+###end
+##
+##		if (isPage) {
+##			int start = (page - 1) * perPage;
+##			sql.append(LIMIT).append(start).append(",").append(perPage);
+##		}
+##
+##		return queryList(sql.toString(), paramList.toArray(new String[0]));
+##	}
+##
+##	public List<$vo> queryList(boolean isPage, int page, int perPage) throws SQLException {
+##		StringBuilder sb = new StringBuilder(querySql);
+##
+##		if (isPage) {
+##			int start = (page - 1) * perPage;
+##			sb.append(LIMIT).append(start).append(",").append(perPage);
+##		}
+##		return queryList(sb.toString(), null);
+##	}
 
 	public int count() throws SQLException {
 		return queryForInt(countSql);
