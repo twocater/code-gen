@@ -1,5 +1,5 @@
 set classpath=.;.\lib\*;.\lib\;.\conf\*;.\conf\;
-java -cp %classpath% com.xunlei.game.velocity.GetAllTableMain
+java -cp %classpath% GetAllTableMain
 
 ::设置源代码目录，存放生成的源码
 set src=src
@@ -9,7 +9,7 @@ set lib=..\lib\
 
 rd /s /q %src%
 
-java -cp %classpath% com.xunlei.game.velocity.CodeGenMain -codeSrcDir %src%
+java -cp %classpath% CodeGenMain -codeSrcDir %src%
 
 ::xcopy /e /y copysrc\* ..\src
 

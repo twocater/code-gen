@@ -11,8 +11,8 @@ import java.sql.ResultSet;
 
 import org.slf4j.Logger;
 
-import com.xunlei.game.codegen.dao.BaseDao;
-import com.xunlei.game.codegen.dao.util.StringParse;
+import com.twocater.daocodegen.codegen.dao.BaseDao;
+import com.twocater.daocodegen.codegen.dao.util.StringParse;
 
 import ${package}.vo.${entry}Vo;
 
@@ -53,6 +53,16 @@ public class $dao extends BaseDao<${vo}> {
 	public static final String SET = " set ";
 	public static final String EMPTY_STRING = "";
 	public static final String COMMA = ",";
+#foreach($entry in $uniqueIndexList.entrySet())
+#set($paramList = "")
+#set($sep = "")
+#foreach($p in ${entry.value})
+#set($paramList = "$paramList$sep$p=?")
+#set($sep = " and ")
+#end
+	public static final String querySqlBy${entry.key} = "select " + FIELD + " from " + TABLE + " where ${paramList}";
+	public static final String deleteSqlBy${entry.key} = "delete from " + TABLE + " where ${paramList}";
+#end
 
 	public ${dao}(DataSource dataSource,Logger log){
  		super(dataSource, log);
@@ -69,6 +79,21 @@ public class $dao extends BaseDao<${vo}> {
 	public int delete(${idType} id) throws SQLException {
 		return update(deleteSqlWithId, new ${idType}[] { id });
 	}
+
+#foreach($entry in $uniqueIndexList.entrySet())
+#set($paramList = "")
+#set($params = "")
+#set($sep = "")
+#foreach($p in ${entry.value})
+#set($paramList = "$paramList$sep$columnType.get($p) $p")
+#set($params = "$params$sep$p")
+#set($sep = ",")
+#end
+	public int deleteBy${entry.key}($paramList) throws SQLException {
+		return update(deleteSqlBy${entry.key}, new Object[]{$params});
+	}
+
+#end
 
 	public int[] deleteList(${idType}[] ids) throws SQLException {
 		return batchUpdate(deleteSqlWithId, ids);
@@ -189,6 +214,21 @@ public class $dao extends BaseDao<${vo}> {
 	public $vo query(${idType} id) throws SQLException {
 		return query(querySqlWithId, new ${idType}[] { id });
 	}
+
+#foreach($entry in $uniqueIndexList.entrySet())
+#set($paramList = "")
+#set($params = "")
+#set($sep = "")
+#foreach($p in ${entry.value})
+#set($paramList = "$paramList$sep$columnType.get($p) $p")
+#set($params = "$params$sep$p")
+#set($sep = ",")
+#end
+	public $vo queryBy${entry.key}($paramList) throws SQLException {
+		return query(querySqlBy${entry.key}, new Object[]{$params});
+	}
+
+#end
 
 	public $vo query(Map<String, String> condition) throws SQLException {
 		StringBuilder sql = new StringBuilder(querySql);

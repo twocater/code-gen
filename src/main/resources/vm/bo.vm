@@ -2,8 +2,8 @@ package ${package}.server;
 
 import java.sql.SQLException;
 
-import com.xunlei.game.codegen.dao.util.C3P0DataSourceUtil;
-import com.xunlei.game.codegen.dao.util.UuidGen;
+import com.twocater.daocodegen.codegen.dao.util.C3P0DataSourceUtil;
+import com.twocater.daocodegen.codegen.dao.util.UuidGen;
 
 import org.slf4j.LoggerFactory;
 
