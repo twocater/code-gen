@@ -54,14 +54,17 @@ public class CreateDaoMain {
         DescribeDao describeDAO = new DescribeDao();
         for (String table : tables) {
             try {
-                List<Column> list = describeDAO.getDescribe(table, dataType);
+                List<Column> columns = describeDAO.getDescribe(table, dataType);
                 List<Index> indexList = describeDAO.getIndex(table);
                 Map<String, List<String>> uniqueIndexList = DbUtil.getUniqueIndexList(indexList);
+                List<String> autoIncrementColumns = DbUtil.getAutoIncrementColumns(columns);
+                Map<String, Column> columnMap = DbUtil.getColumnMap(columns);
+
                 String dao = ObjectUtil.getDAONameByTableName(table); // dao类的文件名（类名）
                 String object = ObjectUtil.getObjectName(dao);
                 daoMap.put(dao, object);
                 String daoFile = dir + File.separator + dao + ".java";
-                String java = velocityServer.createDao(vm, table, packageName, list, uniqueIndexList);
+                String java = velocityServer.createDao(vm, table, packageName, columns, uniqueIndexList, autoIncrementColumns, columnMap);
                 FileUtil.writeFile(daoFile, java.getBytes(), true);
             } catch (SQLException e) {
                 System.out.print("db error");

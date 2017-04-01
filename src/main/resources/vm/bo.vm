@@ -45,31 +45,31 @@ public class ServerBo {
         #end
     #end
 
-	public ${idType} add${mapping.key}(${mapping.key}Vo ${object}Vo) throws SQLException{
-        ${idType} id = ${object}Vo.getId();
-		daoFactory.get${mapping.key}Dao().save(${object}Vo);
-		return id;
-	}
+##	public ${idType} add${mapping.key}(${mapping.key}Vo ${object}Vo) throws SQLException{
+##        ${idType} id = ${object}Vo.getId();
+##		daoFactory.get${mapping.key}Dao().save(${object}Vo);
+##		return id;
+##	}
+##
+##	public int delete${mapping.key}(${idType} id) throws SQLException {
+##		daoFactory.get${mapping.key}Dao().delete(id);
+##		return 1;
+##	}
 
-	public int delete${mapping.key}(${idType} id) throws SQLException {
-		daoFactory.get${mapping.key}Dao().delete(id);
-		return 1;
-	}
-
-	public int delete${mapping.key}(${idType}[] ids) throws SQLException {
-		daoFactory.get${mapping.key}Dao().deleteList(ids);
-		return 1;
-	}
-
-	public int total${mapping.key}() throws SQLException {
-		int total = daoFactory.get${mapping.key}Dao().count();
-		return total;
-	}
-
-	public ${mapping.key}Vo view${mapping.key}(${idType} id) throws SQLException {
-		${mapping.key}Vo vo = daoFactory.get${mapping.key}Dao().query(id);
-		return vo;
-	}
+##	public int delete${mapping.key}(${idType}[] ids) throws SQLException {
+##		daoFactory.get${mapping.key}Dao().deleteList(ids);
+##		return 1;
+##	}
+##
+##	public int total${mapping.key}() throws SQLException {
+##		int total = daoFactory.get${mapping.key}Dao().count();
+##		return total;
+##	}
+##
+##	public ${mapping.key}Vo view${mapping.key}(${idType} id) throws SQLException {
+##		${mapping.key}Vo vo = daoFactory.get${mapping.key}Dao().query(id);
+##		return vo;
+##	}
 #end
 
 }

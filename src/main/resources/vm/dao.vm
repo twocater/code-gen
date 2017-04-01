@@ -1,9 +1,8 @@
 package ${package}.dao;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
+import java.sql.Connection;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
@@ -12,23 +11,29 @@ import java.sql.ResultSet;
 import org.slf4j.Logger;
 
 import com.twocater.daocodegen.codegen.dao.BaseDao;
-import com.twocater.daocodegen.codegen.dao.util.StringParse;
 
 import ${package}.vo.${entry}Vo;
 
 public class $dao extends BaseDao<${vo}> {
+#set($updateFields = "")
+#set($insertFields = "")
 #set($fields = "")
 #set($values = "")
 #set($params = "")
 #set($seperator = "")
 #foreach($column in ${columns})
-#set($tmpFields = "${fields}$seperator$column.field" )
-#set($fields = $tmpFields )
-#set($tmpValues = "$values${seperator}?" )
-#set($values = $tmpValues )
-#set($tmpParams = "$params$seperator${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()" )
-#set($params = $tmpParams)
+#set($fields = "${fields}$seperator$column.field" )
+#set($values = "$values${seperator}?" )
+#set($params = "$params$seperator${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()")
+#set($updateFields = "$updateFields$seperator$column.field=?")
 #set($seperator = ",")
+#end
+#set($seperator = "")
+#foreach($column in ${columns})
+#if(!$autoIncrementColumns.contains($column.field))
+#set($insertFields = "${insertFields}$seperator$column.field" )
+#set($seperator = ",")
+#end
 #end
 #set($idType = "String")
 #foreach($column in ${columns})
@@ -39,12 +44,11 @@ public class $dao extends BaseDao<${vo}> {
 
  	public static final String TABLE = "$table";
 	public static final String FIELD = "$fields";
-	public static final String insertSql = "insert into " + TABLE + " (" + FIELD + ") values ($values)";
-	public static final String querySqlWithId = "select " + FIELD + " from " + TABLE + " where id=?";
-	public static final String querySql = "select " + FIELD + " from " + TABLE;
-	public static final String deleteSqlWithId = "delete from " + TABLE + " where id=?";
-	public static final String deleteSql = "delete from " + TABLE;
-	public static final String countSql = "select count(1) from " + TABLE;
+	public static final String INSERT_FIELD = "$insertFields";
+##	public static final String querySqlWithId = "select " + FIELD + " from " + TABLE + " where id=?";
+##	public static final String querySql = "select " + FIELD + " from " + TABLE;
+##	public static final String deleteSqlWithId = "delete from " + TABLE + " where id=?";
+##	public static final String deleteSql = "delete from " + TABLE;
 	public static final String BLANK = " ";
 	public static final String WHERE = " where ";
 	public static final String AND = " and ";
@@ -53,6 +57,9 @@ public class $dao extends BaseDao<${vo}> {
 	public static final String SET = " set ";
 	public static final String EMPTY_STRING = "";
 	public static final String COMMA = ",";
+
+	public static final String insertSql = "insert into " + TABLE + " (" + INSERT_FIELD + ") values ($values)";
+	public static final String countSql = "select count(1) from " + TABLE;
 #foreach($entry in $uniqueIndexList.entrySet())
 #set($paramList = "")
 #set($sep = "")
@@ -62,7 +69,7 @@ public class $dao extends BaseDao<${vo}> {
 #end
 	public static final String querySqlBy${entry.key} = "select " + FIELD + " from " + TABLE + " where ${paramList}";
 	public static final String deleteSqlBy${entry.key} = "delete from " + TABLE + " where ${paramList}";
-	public static final String updateSqlBy${entry.key} = "update " + TABLE + " set " + " where ${paramList}";
+	public static final String updateSqlBy${entry.key} = "update " + TABLE + " set $updateFields" + " where ${paramList}";
 #end
 
 	public ${dao}(DataSource dataSource,Logger log){
@@ -77,9 +84,101 @@ public class $dao extends BaseDao<${vo}> {
 		return saveList(insertSql, ${object}List);
 	}
 
-##	public int delete(${idType} id) throws SQLException {
-##		return update(deleteSqlWithId, new ${idType}[] { id });
-##	}
+#foreach($entry in $uniqueIndexList.entrySet())
+#set($paramList = "")
+#set($params = "")
+#set($sep = "")
+#foreach($p in ${entry.value})
+#set($paramList = "$paramList$sep$columnType.get($p) $p")
+#set($params = "$params$sep$p")
+#set($sep = ",")
+#end
+
+	public int deleteBy${entry.key}($paramList) throws SQLException {
+		return update(deleteSqlBy${entry.key}, new Object[]{$params});
+	}
+#end
+
+#set($fieldsGet = "")
+#set($sep = "")
+#foreach($column in ${columns})
+	#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
+	#set($fieldsGet = "$fieldsGet${sep}vo.get$columnfield()")
+	#set($sep = ",")
+#end
+#foreach($entry in $uniqueIndexList.entrySet())
+#set($paramList = "")
+#set($params = "")
+#set($sep = "")
+#set($bysGet = "")
+#foreach($p in ${entry.value})
+#set($paramList = "$paramList$sep$columnType.get($p) $p")
+#set($params = "$params$sep$p")
+#set($bysGet = "${bysGet}${sep}vo.get$p.substring(0, 1).toUpperCase()$p.substring(1)()")
+#set($sep = ",")
+#end
+
+	public int updateBy${entry.key}($vo vo) throws SQLException{
+		return update(updateSqlBy${entry.key}, new Object[]{$fieldsGet,$bysGet});
+	}
+#end
+
+#foreach($entry in $uniqueIndexList.entrySet())
+
+	public int[] batchUpdateBy${entry.key}(List<$vo> list) throws SQLException {
+    	Connection conn = null;
+    	PreparedStatement ps = null;
+    	int[] result = null;
+    	try {
+    		conn = getConnection();
+    		ps = conn.prepareStatement(updateSqlBy${entry.key});
+    		for ($vo vo : list) {
+				setAllRow(ps, vo);
+#set($i = $columns.size()+1)
+#foreach($p in ${entry.value})
+            	ps.set$columnMap.get($p).type.substring(0, 1).toUpperCase()$columnMap.get($p).type.substring(1)($i, vo.get$p.substring(0,1).toUpperCase()$p.substring(1)());
+#set($i = $i+1)
+#end
+    			ps.addBatch();
+    		}
+    		result = ps.executeBatch();
+    		log.debug("batch exe sql:{}", new String[]{updateSqlBy${entry.key}});
+		} catch (SQLException e) {
+			log.error("batch exe sql:{} exception.{}", new String[]{updateSqlBy${entry.key}, e.getMessage()});
+    		throw e;
+    	} finally {
+    		closeConnection(ps, conn);
+    	}
+    	return result;
+	}
+#end
+
+#foreach($entry in $uniqueIndexList.entrySet())
+
+	public int updateBy${entry.key}New($vo vo) throws SQLException {
+		Connection con = null;
+		PreparedStatement ps = null;
+		int result = 0;
+		try {
+			con = getConnection();
+			ps = con.prepareStatement(updateSqlBy${entry.key});
+			setAllRow(ps, vo);
+#set($i = $columns.size()+1)
+#foreach($p in ${entry.value})
+			ps.set$columnMap.get($p).type.substring(0, 1).toUpperCase()$columnMap.get($p).type.substring(1)($i, vo.get$p.substring(0,1).toUpperCase()$p.substring(1)());
+#set($i = $i+1)
+#end
+			result = ps.executeUpdate();
+			log.debug("exe sql:{},param:{}", new String[]{updateSqlBy${entry.key}, vo.toString()});
+		} catch (SQLException e) {
+			log.error("exe sql:{},param:{} exception.{}", new String[]{updateSqlBy${entry.key}, vo.toString(), e.getMessage()});
+			throw e;
+		} finally {
+			closeConnection(null, ps, con);
+		}
+		return result;
+	}
+#end
 
 #foreach($entry in $uniqueIndexList.entrySet())
 #set($paramList = "")
@@ -90,16 +189,57 @@ public class $dao extends BaseDao<${vo}> {
 #set($params = "$params$sep$p")
 #set($sep = ",")
 #end
-	public int deleteBy${entry.key}($paramList) throws SQLException {
-		return update(deleteSqlBy${entry.key}, new Object[]{$params});
-	}
 
+	public $vo queryBy${entry.key}($paramList) throws SQLException {
+		return query(querySqlBy${entry.key}, new Object[]{$params});
+	}
 #end
 
+	public int count() throws SQLException {
+		return queryForInt(countSql);
+	}
+
+	@Override
+	protected void setRow(PreparedStatement ps, ${vo} object) throws SQLException {
+#set($i = 1)
+#foreach($column in ${columns})
+#if(!$autoIncrementColumns.contains($column.field))
+#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
+		ps.set$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)($i, object.get$columnfield());
+#set($i=$i+1)
+#end
+#end
+}
+
+	protected void setAllRow(PreparedStatement ps, ${vo} object) throws SQLException {
+#set($i = 1)
+#foreach($column in ${columns})
+#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
+    	ps.set$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)($i, object.get$columnfield());
+#set($i=$i+1)
+#end
+}
+
+	@Override
+	protected ${vo} mapRow(ResultSet rs) throws SQLException {
+		${vo} ${object} = new ${vo}();
+#set($i = 1)
+#foreach($column in ${columns})
+#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
+		${object}.set${columnfield}(rs.get$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)($i));
+#set($i=$i+1)
+#end
+		return ${object};
+	}
+##
+##	public int delete(${idType} id) throws SQLException {
+##		return update(deleteSqlWithId, new ${idType}[] { id });
+##	}
+##
 ##	public int[] deleteList(${idType}[] ids) throws SQLException {
 ##		return batchUpdate(deleteSqlWithId, ids);
 ##	}
-
+##
 ##	public int delete(Map<String, String> condition) throws SQLException {
 ##		StringBuilder sql = new StringBuilder(deleteSql);
 ##		List<String> paramList = new ArrayList<String>();
@@ -121,7 +261,7 @@ public class $dao extends BaseDao<${vo}> {
 ##
 ##		return update(sql.toString(), paramList.toArray(new String[0]));
 ##	}
-
+##
 ##	public int update(Map<String, String> fields, Map<String, String> condition) throws SQLException {
 ##		return update(TABLE, fields, condition);
 ##	}
@@ -170,7 +310,7 @@ public class $dao extends BaseDao<${vo}> {
 ##
 ##		return update(sql.toString(), paramList.toArray(new String[0]));
 ##	}
-
+##
 ##	public int[] updateList(String sql, List<$vo> list) throws SQLException {
 ##        ${idType}[] ids = new ${idType}[list.size()];
 ##		for (int i = 0; i < ids.length; i++) {
@@ -179,74 +319,45 @@ public class $dao extends BaseDao<${vo}> {
 ##
 ##		return batchUpdate(sql, ids);
 ##	}
-
-	public int update$vo(String table, $vo $object) throws SQLException{
-		StringBuilder sql = new StringBuilder();
-		if (table == null) {
-			table = TABLE;
-		}
-		sql.append(" update ").append(table).append(" set ") ;
-		List<Object> paramList = new ArrayList<Object>();
-		String seperator = "";
-#foreach($column in ${columns})
-#set($getter = "${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()")
-#if ($column.type == "String")
-#if($column.field != "id")
-
-		sql.append(seperator);
-		sql.append("$column.field=?");
-		paramList.add($getter);
-		seperator = ",";
-#end
-#else
-
-		sql.append(seperator);
-		sql.append("$column.field=?");
-		paramList.add($getter);
-		seperator = ",";
-#end
-#end
-
-		sql.append(" where id=?");
-		paramList.add(${object}.getId());
-		return update(sql.toString(),paramList.toArray());
-	}
-
-	public $vo query(${idType} id) throws SQLException {
-		return query(querySqlWithId, new ${idType}[] { id });
-	}
-
-#foreach($entry in $uniqueIndexList.entrySet())
-#set($paramList = "")
-#set($params = "")
-#set($sep = "")
-#foreach($p in ${entry.value})
-#set($paramList = "$paramList$sep$columnType.get($p) $p")
-#set($params = "$params$sep$p")
-#set($sep = ",")
-#end
-        public int update$vo($vo $object) throws SQLException{
-
-        	return update(deleteSqlBy${entry.key}, new Object[]{$params});
-        }
-
-#end
-
-#foreach($entry in $uniqueIndexList.entrySet())
-#set($paramList = "")
-#set($params = "")
-#set($sep = "")
-#foreach($p in ${entry.value})
-#set($paramList = "$paramList$sep$columnType.get($p) $p")
-#set($params = "$params$sep$p")
-#set($sep = ",")
-#end
-	public $vo queryBy${entry.key}($paramList) throws SQLException {
-		return query(querySqlBy${entry.key}, new Object[]{$params});
-	}
-
-#end
-
+##
+##	public int update$vo(String table, $vo $object) throws SQLException{
+##		StringBuilder sql = new StringBuilder();
+##		if (table == null) {
+##			table = TABLE;
+##		}
+##		sql.append(" update ").append(table).append(" set ") ;
+##		List<Object> paramList = new ArrayList<Object>();
+##		String seperator = "";
+###foreach($column in ${columns})
+###set($getter = "${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()")
+###if ($column.type == "String")
+###if($column.field != "id")
+##
+##		sql.append(seperator);
+##		sql.append("$column.field=?");
+##		paramList.add($getter);
+##		seperator = ",";
+###end
+###else
+##
+##		sql.append(seperator);
+##		sql.append("$column.field=?");
+##		paramList.add($getter);
+##		seperator = ",";
+###end
+###end
+##
+##		sql.append(" where id=?");
+##		paramList.add(${object}.getId());
+##		return update(sql.toString(),paramList.toArray());
+##	}
+##
+##	public $vo query(${idType} id) throws SQLException {
+##		return query(querySqlWithId, new ${idType}[] { id });
+##	}
+##
+##
+##
 ##	public $vo query(Map<String, String> condition) throws SQLException {
 ##		StringBuilder sql = new StringBuilder(querySql);
 ##		List<String> paramList = new ArrayList<String>();
@@ -268,7 +379,7 @@ public class $dao extends BaseDao<${vo}> {
 ##
 ##		return query(sql.toString(), paramList.toArray(new String[0]));
 ##	}
-
+##
 ##	public List<$vo> queryList(Map<String, String> condition, boolean isPage, int page, int perPage) throws SQLException {
 ##		StringBuilder sql = new StringBuilder(querySql);
 ##		List<String> paramList = new ArrayList<String>();
@@ -305,30 +416,4 @@ public class $dao extends BaseDao<${vo}> {
 ##		}
 ##		return queryList(sb.toString(), null);
 ##	}
-
-	public int count() throws SQLException {
-		return queryForInt(countSql);
-	}
-
-	@Override
-	protected void setRow(PreparedStatement ps, ${vo} object) throws SQLException {
-#set($i = 1)
-#foreach($column in ${columns})
-#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
-		ps.set$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)($i, object.get$columnfield());
-#set($i=$i+1)
-#end
-	}
-
-	@Override
-	protected ${vo} mapRow(ResultSet rs) throws SQLException {
-		${vo} ${object} = new ${vo}();
-#set($i = 1)
-#foreach($column in ${columns})
-#set($columnfield="$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)")
-		${object}.set${columnfield}(rs.get$column.type.substring(0, 1).toUpperCase()$column.type.substring(1)($i));
-#set($i=$i+1)
-#end
-		return ${object};
-	}
 }

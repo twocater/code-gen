@@ -99,7 +99,7 @@ public class VelocityServer {
 
     }
 
-    public String createDao(String vmFile, String table, String packageStr, List<Column> columns, Map<String, List<String>> uniqueIndexList) {
+    public String createDao(String vmFile, String table, String packageStr, List<Column> columns, Map<String, List<String>> uniqueIndexList, List<String> autoIncrementColumns, Map<String, Column> columnMap) {
         setTemplate(vmFile);
         context.put("package", packageStr);
         context.put("table", table);
@@ -116,6 +116,8 @@ public class VelocityServer {
         context.put("columns", columns);
         context.put("uniqueIndexList", uniqueIndexList);
         context.put("columnType", DbUtil.getColumnType(columns));
+        context.put("autoIncrementColumns", autoIncrementColumns);
+        context.put("columnMap", columnMap);
         return toText();
     }
 
