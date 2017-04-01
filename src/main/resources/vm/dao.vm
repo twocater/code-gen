@@ -23,7 +23,6 @@ public class $dao extends BaseDao<${vo}> {
 #set($seperator = "")
 #foreach($column in ${columns})
 #set($fields = "${fields}$seperator$column.field" )
-#set($values = "$values${seperator}?" )
 #set($params = "$params$seperator${object}.get$column.field.substring(0, 1).toUpperCase()$column.field.substring(1)()")
 #set($updateFields = "$updateFields$seperator$column.field=?")
 #set($seperator = ",")
@@ -32,6 +31,7 @@ public class $dao extends BaseDao<${vo}> {
 #foreach($column in ${columns})
 #if(!$autoIncrementColumns.contains($column.field))
 #set($insertFields = "${insertFields}$seperator$column.field" )
+#set($values = "$values${seperator}?" )
 #set($seperator = ",")
 #end
 #end
@@ -150,6 +150,61 @@ public class $dao extends BaseDao<${vo}> {
     		closeConnection(ps, conn);
     	}
     	return result;
+	}
+#end
+
+#foreach($entry in $uniqueIndexList.entrySet())
+
+	public int[] batchDeleteBy${entry.key}(List<$vo> list) throws SQLException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		int[] result = null;
+		try {
+			conn = getConnection();
+			ps = conn.prepareStatement(deleteSqlBy${entry.key});
+			for ($vo vo : list) {
+#set($i = 1)
+#foreach($p in ${entry.value})
+    			ps.set$columnMap.get($p).type.substring(0, 1).toUpperCase()$columnMap.get($p).type.substring(1)($i, vo.get$p.substring(0,1).toUpperCase()$p.substring(1)());
+#set($i = $i+1)
+#end
+				ps.addBatch();
+			}
+			result = ps.executeBatch();
+			log.debug("batch exe sql:{}", new String[]{deleteSqlBy${entry.key}});
+		} catch (SQLException e) {
+			log.error("batch exe sql:{} exception.{}", new String[]{deleteSqlBy${entry.key}, e.getMessage()});
+			throw e;
+		} finally {
+			closeConnection(ps, conn);
+		}
+		return result;
+	}
+#end
+
+#foreach($entry in $uniqueIndexList.entrySet())
+
+	public int deleteBy${entry.key}New($vo vo) throws SQLException {
+		Connection con = null;
+		PreparedStatement ps = null;
+		int result = 0;
+		try {
+			con = getConnection();
+			ps = con.prepareStatement(deleteSqlBy${entry.key});
+#set($i = 1)
+#foreach($p in ${entry.value})
+    		ps.set$columnMap.get($p).type.substring(0, 1).toUpperCase()$columnMap.get($p).type.substring(1)($i, vo.get$p.substring(0,1).toUpperCase()$p.substring(1)());
+#set($i = $i+1)
+#end
+			result = ps.executeUpdate();
+			log.debug("exe sql:{},param:{}", new String[]{deleteSqlBy${entry.key}, vo.toString()});
+		} catch (SQLException e) {
+			log.error("exe sql:{},param:{} exception.{}", new String[]{deleteSqlBy${entry.key}, vo.toString(), e.getMessage()});
+			throw e;
+		} finally {
+			closeConnection(null, ps, con);
+		}
+		return result;
 	}
 #end
 
