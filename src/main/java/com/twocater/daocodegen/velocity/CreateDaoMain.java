@@ -64,7 +64,7 @@ public class CreateDaoMain {
                 String object = ObjectUtil.getObjectName(dao);
                 daoMap.put(dao, object);
                 String daoFile = dir + File.separator + dao + ".java";
-                String java = velocityServer.createDao(vm, table, packageName, columns, uniqueIndexList, autoIncrementColumns, columnMap);
+                String java = velocityServer.createDao(vm, table, packageName, columns, uniqueIndexList, autoIncrementColumns, columnMap, DescribeDao.databaseName);
                 FileUtil.writeFile(daoFile, java.getBytes(), true);
             } catch (SQLException e) {
                 System.out.print("db error");

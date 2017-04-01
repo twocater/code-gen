@@ -42,7 +42,7 @@ public class $dao extends BaseDao<${vo}> {
     #end
 #end
 
- 	public static final String TABLE = "$table";
+ 	public static final String TABLE = "$databaseName.$table";
 	public static final String FIELD = "$fields";
 	public static final String INSERT_FIELD = "$insertFields";
 ##	public static final String querySqlWithId = "select " + FIELD + " from " + TABLE + " where id=?";

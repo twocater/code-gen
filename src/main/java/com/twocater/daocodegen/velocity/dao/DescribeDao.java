@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 public class DescribeDao {
     Logger errorLog = LoggerFactory.getLogger("error");
     Logger dbLog = LoggerFactory.getLogger("db");
+    public static String databaseName = "";
 
     public static Connection getConnection() {
         Properties properties = PropertyUtil.getPropertiesFromResource("db.properties");
@@ -32,6 +33,9 @@ public class DescribeDao {
             String password = properties.getProperty("password");
             Class.forName(driver);
             conn = DriverManager.getConnection(url, username, password);
+            int i = url.indexOf("?");
+            int j = url.substring(0, i).lastIndexOf("/");
+            databaseName = url.substring(j + 1, i);
         } catch (Exception e) {
             e.printStackTrace();
         }
